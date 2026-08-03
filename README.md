@@ -26,9 +26,9 @@ You can run the proxy instantly using `bunx`:
 bunx antigravity-proxy@0.7.0
 ```
 
-### Docker Hub
+### GitHub Container Registry
 ```bash
-docker run -d -p "${PORT:-3000}:${PORT:-3000}" -e PORT="${PORT:-3000}" --name antigravity-proxy frieserpaldi/antigravity-proxy:0.7.0
+docker run -d -p "${PORT:-3000}:${PORT:-3000}" -e PORT="${PORT:-3000}" --name antigravity-proxy ghcr.io/ruri4/antigravity-proxy:latest
 ```
 
 ### Local Execution (Bun)

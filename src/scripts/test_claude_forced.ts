@@ -1,4 +1,7 @@
 
+const proxyUrl = process.env.PROXY_URL;
+if (!proxyUrl) throw new Error("Set PROXY_URL before running this script");
+
 async function testClaude() {
   const modelName = "antigravity-claude-opus-4-6-thinking-high";
   const email = "frieserpaldi@gmail.com";
@@ -7,7 +10,7 @@ async function testClaude() {
   
   while (true) {
       try {
-        const response = await fetch("http://127.0.0.1:3000/v1/chat/completions", {
+        const response = await fetch(`${proxyUrl}/v1/chat/completions`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

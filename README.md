@@ -28,7 +28,7 @@ bunx antigravity-proxy@0.7.0
 
 ### Docker Hub
 ```bash
-docker run -d -p 3000:3000 -e BASE_URL=http://localhost:3000 --name antigravity-proxy frieserpaldi/antigravity-proxy:0.7.0
+docker run -d -p "${PORT:-3000}:${PORT:-3000}" -e PORT="${PORT:-3000}" --name antigravity-proxy frieserpaldi/antigravity-proxy:0.7.0
 ```
 
 ### Local Execution (Bun)
@@ -37,7 +37,7 @@ Requirements: Bun (v1.0.0 or higher).
 bun install
 bun run start
 ```
-The server starts on port 3000.
+The server listens on `PORT` (default: `3000`) and `HOST` (default: `0.0.0.0`). OAuth URLs use the request's host, or `X-Forwarded-Host` and `X-Forwarded-Proto` behind a reverse proxy. Set `BASE_URL` to override that origin. OAuth redirect URIs must be registered with Google.
 
 ## Integration Guides
 
@@ -45,15 +45,17 @@ The server starts on port 3000.
 To use **Claude Code** with Antigravity Proxy, point the API base URL to your local instance and specify a model from the Sandbox Pool:
 
 ```bash
+export PROXY_URL="http://<host>:<port>"
+
 # Point Claude Code to the proxy
-export CLAUDE_CODE_API_BASE="http://localhost:3000/v1"
+export CLAUDE_CODE_API_BASE="$PROXY_URL/v1"
 
 # Run Claude specifying an Antigravity model
 claude --model antigravity-claude-sonnet-4-5
 ```
 
 ### OpenCode Configuration
-Add the following provider to your `~/.config/opencode/opencode.json` under the `"provider"` key:
+Add the following provider to your `~/.config/opencode/opencode.json` under the `"provider"` key, replacing `<proxy-url>` with your deployment's public origin:
 
 ```json
 "provider": {
@@ -61,7 +63,7 @@ Add the following provider to your `~/.config/opencode/opencode.json` under the 
         "npm": "@ai-sdk/openai-compatible",
         "name": "Antigravity Proxy",
         "options": {
-            "baseURL": "http://localhost:3000/v1"
+            "baseURL": "<proxy-url>/v1"
         },
         "models": {
             "antigravity-gemini-3.1-pro-low": {
@@ -153,4 +155,3 @@ Antigravity Proxy acts as a sophisticated bridge that translates OpenAI-formatte
 ## Security Notes
 - **Safety Filters**: Controlled via `SAFETY_THRESHOLD` (default: `BLOCK_NONE`).
 - **Credentials**: OAuth tokens are stored locally in `antigravity-accounts.json`. Do not share or commit this file.
-

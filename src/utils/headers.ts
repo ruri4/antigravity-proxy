@@ -11,8 +11,7 @@ export const OAUTH_CONFIG = {
     "https://www.googleapis.com/auth/userinfo.profile",
     "https://www.googleapis.com/auth/cclog",
     "https://www.googleapis.com/auth/experimentsandconfigs"
-  ],
-  redirectUri: "http://localhost:3000/oauth-callback"
+  ]
 };
 
 const ANTIGRAVITY_VERSION = "2.0.1";
@@ -162,4 +161,3 @@ export function getGeminiCliHeaders(accessToken: string, fingerprint?: DeviceFin
 
   return headers;
 }
-

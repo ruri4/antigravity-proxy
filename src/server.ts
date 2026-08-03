@@ -13,6 +13,7 @@ import { transformToGoogleBody, transformGoogleEventToOpenAI, createOpenAIStream
 import { getImpersonationHeaders, getGeminiCliHeaders, generateFingerprint } from "./utils/headers";
 import { refreshAllQuotas, fetchQuota, supportedModelsCache } from "./api/quota";
 import { parseGoogleError } from "./utils/errors";
+import { getPublicOrigin, getServerHost, getServerPort } from "./server-config";
 
 const logBuffer: string[] = [];
 const MAX_LOGS = 200;
@@ -44,14 +45,16 @@ console.warn = (...args) => { originalWarn(...args); captureLog('warn', args); }
 await initManager();
 
 const proxyConfig = getProxyConfig();
+const serverPort = getServerPort();
+const serverHost = getServerHost();
 
 setInterval(refreshAllQuotas, proxyConfig.quota.refreshIntervalMs);
 // Initial quota refresh on startup
 refreshAllQuotas();
 
 Bun.serve({
-  port: 3000,
-  hostname: "0.0.0.0",
+  port: serverPort,
+  hostname: serverHost,
   idleTimeout: 0,
   async fetch(req) {
     const url = new URL(req.url);
@@ -69,7 +72,7 @@ Bun.serve({
         });
     }
     if (cleanPath === "/oauth/start") {
-      return Response.redirect(generateAuthUrl());
+      return Response.redirect(generateAuthUrl(`${getPublicOrigin(req)}/oauth-callback`));
     }
 
     if (cleanPath === "/v1/models") {
@@ -647,7 +650,8 @@ Bun.serve({
       if (!code) return new Response("Missing code", { status: 400 });
 
       try {
-          const tokenRes = await exchangeCode(code);
+          const redirectUri = `${getPublicOrigin(req)}/oauth-callback`;
+          const tokenRes = await exchangeCode(code, redirectUri);
           const email = await getUserEmail(tokenRes.access_token);
           const projectId = await getProjectId(tokenRes.access_token);
 
@@ -675,7 +679,7 @@ Bun.serve({
 
           await addAccount(newAccount);
           
-          return Response.redirect(`http://localhost:3000/frontend/index.html`);
+          return Response.redirect(`${getPublicOrigin(req)}/frontend/index.html`);
       } catch (e) {
           return new Response(`Auth error: ${e}`, { status: 500 });
       }
@@ -699,4 +703,4 @@ Bun.serve({
   }
 });
 
-console.log("Antigravity Proxy running on http://127.0.0.1:3000");
+console.log(`Antigravity Proxy listening on ${serverHost}:${serverPort}`);

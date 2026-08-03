@@ -1,10 +1,10 @@
 import { OAUTH_CONFIG, getImpersonationHeaders } from "../utils/headers";
 import { type GoogleTokenResponse } from "./types";
 
-export function generateAuthUrl(): string {
+export function generateAuthUrl(redirectUri: string): string {
   const params = new URLSearchParams({
     client_id: OAUTH_CONFIG.clientId,
-    redirect_uri: OAUTH_CONFIG.redirectUri,
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: OAUTH_CONFIG.scopes.join(" "),
     access_type: "offline",
@@ -16,11 +16,11 @@ export function generateAuthUrl(): string {
   return `${OAUTH_CONFIG.authUri}?${params.toString()}`;
 }
 
-export async function exchangeCode(code: string): Promise<GoogleTokenResponse> {
+export async function exchangeCode(code: string, redirectUri: string): Promise<GoogleTokenResponse> {
   const params = new URLSearchParams({
     client_id: OAUTH_CONFIG.clientId,
     client_secret: OAUTH_CONFIG.clientSecret, // REQUIRED for this Client ID
-    redirect_uri: OAUTH_CONFIG.redirectUri,
+    redirect_uri: redirectUri,
     grant_type: "authorization_code",
     code: code,
     code_verifier: "cFH3lPzU2FhJjQhHlGqKqQhHlGqKqQhHlGqKqQhHlGq" 

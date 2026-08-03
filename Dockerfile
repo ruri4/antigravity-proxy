@@ -12,7 +12,7 @@ COPY src ./src
 COPY package.json ./
 
 # Create a data directory for persistence and set permissions
-RUN mkdir -p /app/data && chown -R bun:bun /app/data
+RUN mkdir -p /app/data && chown -R bun:bun /app
 
 USER bun
 CMD ["bun", "run", "src/server.ts"]
